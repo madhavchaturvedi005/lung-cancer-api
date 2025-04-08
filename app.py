@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 import numpy as np
 import pickle
+import os
 
 app = Flask(__name__)
 
@@ -17,7 +18,6 @@ def predict():
     try:
         data = request.get_json(force=True)
 
-        # Assuming input features are in the correct order
         features = [
             data["GENDER"],
             data["AGE"],
@@ -37,8 +37,8 @@ def predict():
         ]
 
         features = np.array(features).reshape(1, -1)
-        scaled_features = scaler.transform(features)
-        prediction = model.predict(scaled_features)
+        scaled = scaler.transform(features)
+        prediction = model.predict(scaled)
 
         return jsonify({"prediction": int(prediction[0])})
 
@@ -46,4 +46,5 @@ def predict():
         return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port)
